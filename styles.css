@@ -1,3 +1,35 @@
-.container {
+body {
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+.container-main {
     display: flex;
+}
+
+.page-title {
+    padding-left: 20px;
+    height: 10vh;
+    color:steelblue;
+}
+
+.container-left {
+    width: 60%;
+    overflow: hidden;
+}
+
+.container-right {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    text-align: center;
+    width: 40%;
+}
+
+.container-table {
+    height: 80vh;
+    overflow-y: scroll;
+}
+
+.container-cancel-button {
+    margin: 20px 0px;
 }

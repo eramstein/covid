@@ -9,14 +9,21 @@
     <link rel="stylesheet" type="text/css" href="styles.css"> 
   </head>
   <body>
-    <div class="container">
-        <div>
-            <h1>COVID19 Summary</h1>
-            <data-table id="data_table_1"></data-table>
-        </div>    
-        <div>
-            <pie-chart id="pie_chart_1"></pie-chart>
+    <div class="container-main">
+        <div class="container-left">
+            <h1 class="page-title">COVID19 Summary</h1>
+            <div class="container-table">
+              <data-table id="data_table_1"></data-table>
+            </div>
         </div>
+        <div class="container-right">
+          <div>
+            <pie-chart id="pie_chart_1"></pie-chart>
+          </div>
+          <div class="container-cancel-button">
+            <button id="cancel_button">Clear Selected Country</button>
+          </div>
+        </div>        
     </div>
   </body>
 </html>
