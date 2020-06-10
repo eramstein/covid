@@ -1,8 +1,9 @@
 /*
-Notes for improvements: 
+Implementation issues due to lack of time: 
 - D3 should be imported by the component to make it re-usable; here we simply load it in index.html
 - the data is passed directly as an attribute: for lots of data the de-serialization might impact performances
   it would be nice to have an option to pass instead a function that fetches the data
+- the nesting of other web components inside the table has been a bit hacked together at the last minute
 
 Nice features to add:
 - scrollable tbody (at the moment the headers are invisible if scrolling too far)
@@ -56,13 +57,13 @@ export class DataTable extends HTMLElement {
                 composed: true,
                 detail: data,
             });
-        };
+        };        
         
-        const shadow = this.attachShadow({ mode: 'open' });
         const style = document.createElement('style');  
         style.textContent = STYLES;        
-        shadow.appendChild(style);
 
+        const shadow = this.attachShadow({ mode: 'open' });
+        shadow.appendChild(style);
         table.appendChild(tableHead);
         tableHead.appendChild(this.tableHeadRow);
         table.appendChild(this.tableBody);
@@ -90,9 +91,29 @@ export class DataTable extends HTMLElement {
                 
         rows.selectAll('td')
             .data(d => getRowData(d, columns))
-            .join('td')
-                .text(d => d.toLocaleString());    
-    }
+            .join('td')       
+                .text(d => displayCellContent(d))
+            .filter(d => d.type === 'component')
+                .append('div')
+                .text((d, i, el) => createComponent(d, i, el));
+
+        function displayCellContent(d) {
+            return d.text && d.text.toLocaleString();
+        }
+    
+        function createComponent(d, i, el) {
+            const div = el[0];
+            if (div && !div.shadow) {
+                const shadow = div.attachShadow({ mode: 'open' });        
+                const component = document.createElement(d.componentName);
+                Object.entries(d.componentAttributes).forEach(entry => {
+                    component.setAttribute(entry[0], entry[1]);
+                });
+                component.setAttribute('data', d.data);          
+                shadow.appendChild(component);
+            }         
+        }
+    }    
 
     attributeChangedCallback(name, oldValue, newValue) {
         // note: typically we would check if oldValue === newValue,
@@ -115,6 +136,18 @@ export class DataTable extends HTMLElement {
 
   }
 
-  function getRowData(rowData, columnsConfig) {
-      return columnsConfig.map(c => rowData[c.dataPropertyName]);
-  }
+function getRowData(rowData, columnsConfig) {
+    return columnsConfig.map(c => {
+        if (c.type === 'component') {            
+            return {
+                ...c,
+                data: c.dataPropertyNames.map(p => rowData[p]),
+            };
+        } else {
+            return {
+                ...c,
+                text: rowData[c.dataPropertyName],
+            };
+        }        
+    });
+}

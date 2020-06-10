@@ -31,5 +31,10 @@ body {
 }
 
 .container-cancel-button {
-    margin: 20px 0px;
+    height: 50px;
+    padding-top: 20px;
+}
+
+#cancel_button {
+    display: none;
 }

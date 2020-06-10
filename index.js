@@ -1,12 +1,14 @@
-import { DATA_URL, TABLE_CONFIG, CHART_CONFIG, DEFAULT_RECORD, TABLE_ELEMENT_ID, CHART_ELEMENT_ID } from './config.js';
+import { DATA_URL, TABLE_CONFIG, CHART_CONFIG, DEFAULT_RECORD, TABLE_ELEMENT_ID, CHART_ELEMENT_ID, CANCEL_BUTTON_ID } from './config.js';
 import { DataTable } from './components/data_table.js';
 import { PieChart } from './components/pie_chart.js';
+import { BarChart } from './components/bar_chart.js';
 import { STATIC_DATA } from './data.js';
 
 // Define custom web components
 // --------------------------------------------------
 customElements.define('data-table', DataTable);
 customElements.define('pie-chart', PieChart);
+customElements.define('bar-chart', BarChart);
 
 // Load data
 // --------------------------------------------------
@@ -34,7 +36,7 @@ fetch(DATA_URL, {
 });
 
 // We store the data locally in order not to have to re-query the API too often
-// Typically that would be something like a Redux or Vuex store, for this execrise a simple global variable
+// Typically that would be something like a Redux or Vuex store, for this assignment just a simple global variable
 let STORE;
 
 // Check if data is formatted as expected (basic version, a real application would need more)
@@ -46,6 +48,7 @@ function validateData(data) {
 // Pass loaded data to web components
 // --------------------------------------------------
 function setupComponents(data) {
+    data.Countries = data.Countries.sort((a, b) => b.TotalConfirmed - a.TotalConfirmed);
     setupTable(data);
     setupPieChart(data);
     STORE = data;
@@ -75,7 +78,8 @@ function makePieData(record) {
 // Event listeners
 // --------------------------------------------------
 document.addEventListener('rowClicked', (e) => {
-    updatePieChart(e.detail);    
+    updatePieChart(e.detail);
+    document.querySelector(CANCEL_BUTTON_ID).style.display = 'inline';
 });
 
 function updatePieChart(data) {    
@@ -94,6 +98,7 @@ function resetTable() {
 function resetSelection() {
     updatePieChart({ Country: DEFAULT_RECORD, ...STORE[DEFAULT_RECORD] });
     resetTable();
+    document.querySelector(CANCEL_BUTTON_ID).style.display = 'none';
 }
 
-document.querySelector('#cancel_button').onclick = resetSelection;
+document.querySelector(CANCEL_BUTTON_ID).onclick = resetSelection;

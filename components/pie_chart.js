@@ -39,12 +39,12 @@ export class PieChart extends HTMLElement {
         title.className = 'pie-chart-title';
         this.titleElement = title;
 
-        this.chartRoot = document.createElement('div');        
-
-        const shadow = this.attachShadow({ mode: 'open' });
+        this.chartRoot = document.createElement('div');
+        
         const style = document.createElement('style');  
         style.textContent = STYLES;
         
+        const shadow = this.attachShadow({ mode: 'open' });
         shadow.appendChild(style);
         shadow.appendChild(container);
         container.appendChild(title);
@@ -80,6 +80,7 @@ export class PieChart extends HTMLElement {
         // redraw chart
         const data = this._data;
         const color = d3.scaleOrdinal().range(this._config.colors);
+        const _arc = this.arc;
         const _labelArc = this.labelArc;
         const pieData = this.pie(data);
 
@@ -89,7 +90,7 @@ export class PieChart extends HTMLElement {
                 .attr('fill', d => color(d.data.label))
             .transition()
             .duration(750)
-                .attr('d', this.arc);
+                .attrTween('d', arcTween);
 
         this.pieContainer.selectAll('text')
             .data(pieData, d => d.data.label)
@@ -98,7 +99,23 @@ export class PieChart extends HTMLElement {
                 .text(d => d.value.toLocaleString())
             .transition()            
             .duration(750)
-                .attr('transform', function(d) { return 'translate(' + _labelArc.centroid(d) + ')'; });
+                .attrTween('transform', textTween);
+
+        function arcTween(a) {
+            const i = d3.interpolate(this._current, a);
+            this._current = i(0);            
+            return function(t) {
+                return _arc(i(t));
+            };
+        }
+
+        function textTween(a) {
+            const i = d3.interpolate(this._current, a);
+            this._current = i(0);            
+            return function(t) {
+                return 'translate(' + _labelArc.centroid(i(t)) + ')';
+            };
+        }
     }
 
     updateTitle(title) {            
