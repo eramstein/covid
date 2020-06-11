@@ -1,7 +1,14 @@
 /*
-    This one is a bit hacked together in the last minute
-    But I thought it would be useful to have a way to compare countries at a glance
-*/
+BarChart Component
+
+Attributes:
+- colors {string}: a comma separated list of colors (rgb(), hex), e.g. '#4b9dd1,#f78851,#a2d9a3'
+          they will be used in this sequence for each bar, looping from the first if there
+          are more bars than colors
+- maxWidth {number}: the maximum size in pixels of the bar if it matches the maximum data value
+- maxVal {number}: the maximum total value of the data points
+- data {string}: comma separated list of numbers
+*/ 
 
 const STYLES = `
     .container {
@@ -13,6 +20,10 @@ export class BarChart extends HTMLElement {
 
     static get observedAttributes() {
         return ['data', 'config'];
+    }
+
+    static get tag() {
+        return 'bar-chart';
     }
 
     constructor() {
@@ -32,7 +43,7 @@ export class BarChart extends HTMLElement {
     attributeChangedCallback(name, oldValue, newValue) {        
         if (name === 'data') {
             this._data = newValue.split(',').map(d => d * 1);
-            if (this._colors && this._maxVal && this._maxWidth) {                
+            if (this._colors && this._maxVal && this._maxWidth) {
                 this.buildChart();
             }                                
         }        
@@ -48,14 +59,29 @@ export class BarChart extends HTMLElement {
     }
 
     xScale(d) {        
-        return (d/this._maxVal) * this._maxWidth;
+        return Math.floor((d/this._maxVal) * this._maxWidth);
     }
-
+    
     connectedCallback() {
-        this._colors = this.getAttribute('colors').split(',');
-        this._maxVal = this.getAttribute('maxVal') * 1;
-        this._maxWidth = this.getAttribute('maxWidth') * 1;
-        this.buildChart();
+        // TODO: attribute validation and safer "type casting"
+        const colors = this.getAttribute('colors');
+        if (colors) {
+            this._colors = this.getAttribute('colors').split(',');
+        }
+
+        const maxVal = this.getAttribute('maxVal');
+        if (maxVal) {
+            this._maxVal = this.getAttribute('maxVal') * 1;
+        }
+        
+        const maxWidth = this.getAttribute('maxWidth');
+        if (maxWidth) {
+            this._maxWidth = this.getAttribute('maxWidth') * 1;
+        }
+        
+        if (this._colors && this._maxVal && this._maxWidth && this._data) {
+            this.buildChart();
+        }
     }
 
-  }
+}

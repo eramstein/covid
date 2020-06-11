@@ -1,13 +1,36 @@
 /*
+DataTable Component
+
+Attributes:
+- data {Array}: an array of objects.
+- config {Object}: configures columns. there are 2 types:
+    - data: simply specify the corresponding attribute and the label of the column header
+    - component: nests another web component into the table's cell
+                 component attributes can be specified in componentAttributes
+                 in addition, a data attribute is added with the data attributes specified in dataPropertyNames
+
+example config with one data column and one component column
+    {
+        columns: [{
+            type: 'data',
+            label: 'Country Name',
+            dataPropertyName: 'Country',            
+        },{
+            type: 'component',
+            label: 'Summary',
+            componentName: 'bar-chart',
+            dataPropertyNames: ['TotalConfirmed', 'TotalDeaths', 'TotalRecovered'],
+            componentAttributes: { colors: CHART_COLORS },
+        }],
+    }
+
 Implementation issues due to lack of time: 
-- D3 should be imported by the component to make it re-usable; here we simply load it in index.html
+- D3 should be imported by the component to make it self contained; here we simply load it in index.html
 - the data is passed directly as an attribute: for lots of data the de-serialization might impact performances
   it would be nice to have an option to pass instead a function that fetches the data
-- the nesting of other web components inside the table has been a bit hacked together at the last minute
-
-Nice features to add:
-- scrollable tbody (at the moment the headers are invisible if scrolling too far)
-*/
+- would be nice to have a scrollable tbody (at the moment the headers are invisible if scrolling too far)
+- the component nesting is a bit hacked together quickly, a proper implementation would require much more time
+*/ 
 
 const STYLES = `
     table {

@@ -1,3 +1,18 @@
+/*
+PieChart Component
+
+Attributes:
+- title {String}: displayed on the top of the chart.
+- data {Array}: an array of objects with 2 properties:
+    - label {String}
+    - value {Number}
+- config {Object}:
+    - colors {Array}: e.g. ['#4b9dd1,#f78851,#a2d9a3']
+        they will be used in this sequence, looping from the first if there are more arcs than colors
+    - categoryLabels {Object}: e.g. {"TotalConfirmed": "Total Confirmed"}
+        how to display categories in the legend
+*/ 
+
 const LEGEND_ELEMENT_HEIGHT = 20;
 
 const STYLES = `
@@ -101,6 +116,9 @@ export class PieChart extends HTMLElement {
             .duration(750)
                 .attrTween('transform', textTween);
 
+        // These tween function are necessary for smooth circular transitions,
+        // else D3's transition() directly interpolates on numbers found in <path> elements,
+        // which works but doesn't create a satisfying animation
         function arcTween(a) {
             const i = d3.interpolate(this._current, a);
             this._current = i(0);            
